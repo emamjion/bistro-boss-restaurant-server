@@ -142,7 +142,7 @@ async function run() {
     });
 
     // method : post
-    app.post('/menu', async(req, res) => {
+    app.post('/menu', verifyJWT, verifyAdmin, async(req, res) => {
         const newMenuItem = req.body;
         const result = await menuCollection.insertOne(newMenuItem);
         res.send(result);
