@@ -60,10 +60,30 @@ async function run() {
         res.send({ token });
     })
 
+
+    // Warning : Use verifyJWT before using verifyAdmin
+    const verifyAdmin = async(req, res, next) => {
+        const email = req.decoded.email;
+        const query = { email : email };
+        const user = await userCollection.findOne(query);
+        // onek dhoroner role hote pare - ex: instructor, manager, leader etc.
+        if(user?.role !== 'admin'){
+            res.status(403).send( { error: true, message : 'forbidden message'} );
+        }
+        next();
+    }
+
+    /**
+     * 0. Do not show secure links to those who should not see the links.
+     * 1. Use JWT token : verifyJWT
+     * 2. Use verifyAdmin middleware
+     */ 
+
+
     // users related apis and collection
     
     // method : get 
-    app.get('/users', async(req, res) => {
+    app.get('/users', verifyJWT, verifyAdmin, async(req, res) => {
         const cursor = userCollection.find();
         const result = await cursor.toArray();
         res.send(result);
